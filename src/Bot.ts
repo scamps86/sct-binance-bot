@@ -68,11 +68,8 @@ class Bot {
             return;
         }
 
-        // Buy order
-        this.buyOrder = await this.order('BUY', this.buyPrice);
-
         // Start listening
-        if (!this.wsClean && this.buyOrder) {
+        if (!this.wsClean) {
             this.wsClean = await this.authBinance.ws.user(async (message) => {
                 if (message?.eventType === 'executionReport' && message?.orderStatus === 'FILLED' && message?.executionType === 'TRADE') {
                     if (message.orderId === this.buyOrder?.orderId) {
@@ -89,6 +86,7 @@ class Bot {
                 }
             });
         }
+        this.buyOrder = await this.order('BUY', this.buyPrice);
     }
 
     public async stop(): Promise<void> {
