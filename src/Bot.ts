@@ -74,14 +74,14 @@ class Bot {
         // Start listening
         if (!this.wsClean && this.buyOrder) {
             this.wsClean = await this.authBinance.ws.user(async (message) => {
-                if (message && message.eventType === 'executionReport' && message.orderStatus === 'FILLED' && message.executionType === 'TRADE') {
-                    if (this.buyOrder && message.orderId === this.buyOrder.orderId) {
+                if (message?.eventType === 'executionReport' && message?.orderStatus === 'FILLED' && message?.executionType === 'TRADE') {
+                    if (message.orderId === this.buyOrder?.orderId) {
                         await Logger.log('BUY ORDER done:', this.buyOrder.price);
                         const CBalance = await this.getUserBalance(this.config.currency);
                         this.quantity = this.roundStep(CBalance);
                         this.sellOrder = await this.order('SELL', this.sellPrice);
                     }
-                    if (this.sellOrder && message.orderId === this.sellOrder.orderId) {
+                    if (message.orderId === this.sellOrder?.orderId) {
                         await Logger.log('SELL ORDER done:', this.sellOrder.price);
                         await Logger.log('- - - - - DEAL ACCOMPLISHED! - - - - -');
                         this.start(config);
@@ -95,6 +95,7 @@ class Bot {
         await Logger.log('- - - - - - BOT STOPPED - - - - - -');
         if (this.wsClean) {
             this.wsClean();
+            this.wsClean = null;
         }
         if (this.buyOrder) {
             await this.cancelOrder(this.buyOrder.orderId);
@@ -127,10 +128,14 @@ class Bot {
     }
 
     private async cancelOrder(orderId: number): Promise<void> {
-        await this.authBinance.cancelOrder({
-            symbol: this.config.pair,
-            orderId
-        });
+        try {
+            await this.authBinance.cancelOrder({
+                symbol: this.config.pair,
+                orderId
+            });
+        } catch (e) {
+            console.error('Cancel order error', e);
+        }
     }
 
     private async refreshCurrencyInfo(): Promise<void> {
