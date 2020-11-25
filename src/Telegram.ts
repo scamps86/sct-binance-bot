@@ -31,7 +31,7 @@ class Telegram {
                     candlePeriod: match[1],
                     candleAmount: Number(match[2]),
                     balancePercent: Number(match[3].replace('%', '')),
-                    buyMargin: match[4],
+                    buyMargin: Number(match[4]),
                     method: match[5]
                 });
             } else {
@@ -48,7 +48,7 @@ class Telegram {
                     candlePeriod: match[1],
                     candleAmount: Number(match[2]),
                     balancePercent: Number(match[3].replace('%', '')),
-                    buyMargin: match[4],
+                    buyMargin: Number(match[4]),
                     method: match[5]
                 });
             } else {
