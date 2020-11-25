@@ -52,12 +52,16 @@ class Bot {
     }
 
 
-    public async start(config: IBotConfig): Promise<void> {
-        await Logger.log('- - - - - STARTING BOT - - - - -');
-
+    public async check(config: IBotConfig): Promise<void> {
         this.config = config;
         await this.refreshCurrencyInfo();
         await this.doCalculations();
+    }
+
+
+    public async start(config: IBotConfig): Promise<void> {
+        await Logger.log('- - - - - STARTING BOT - - - - -');
+        await this.check(config);
 
         if (this.quantity <= 0 || this.buyPrice < 0 || this.sellPrice < 0 || this.buyPrice > this.sellPrice) {
             await Logger.log('Bot could not be executed with this configuration. Please review your BTC free balance too.');

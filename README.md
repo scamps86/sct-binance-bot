@@ -21,5 +21,6 @@ You can configure the number of the last candles and their period.
 #### Telegram bot options
 * `/start 5m 10 20% up` candle period | number of candles | balance percent | method
 * `/stop`
+* `/check 5m 10 20% up`
 * `/help`
 
