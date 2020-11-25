@@ -4,7 +4,7 @@ const CONFIG = {
         API_SECRET: 'your Binance api secret',
     },
     TELEGRAM: {
-        BOT_TOKEN: 'your Telegram bot id',
+        BOT_TOKEN: 'your Telegram bot token',
     },
     CURRENCY: {
         PAIR: 'WAVESBTC',
