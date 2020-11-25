@@ -23,7 +23,7 @@ class Telegram {
         console.log('TELEGRAM listening...');
 
         // Telegram bot: /start 1m 10 50% up
-        this.tb.onText(/\/start ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (up|down)/, async (message, match) => {
+        this.tb.onText(/\/start ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (.+) (up|down)/, async (message, match) => {
             if (!bot.isStarted()) {
                 await bot.start({
                     pair: CONFIG.CURRENCY.PAIR,
@@ -31,7 +31,8 @@ class Telegram {
                     candlePeriod: match[1],
                     candleAmount: Number(match[2]),
                     balancePercent: Number(match[3].replace('%', '')),
-                    method: match[4]
+                    buyMargin: match[4],
+                    method: match[5]
                 });
             } else {
                 this.send('Bot is already started!');
@@ -39,7 +40,7 @@ class Telegram {
         });
 
         // Telegram bot: /check 1m 10 50% up
-        this.tb.onText(/\/check ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (up|down)/, async (message, match) => {
+        this.tb.onText(/\/check ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (.+) (up|down)/, async (message, match) => {
             if (!bot.isStarted()) {
                 await bot.check({
                     pair: CONFIG.CURRENCY.PAIR,
@@ -47,7 +48,8 @@ class Telegram {
                     candlePeriod: match[1],
                     candleAmount: Number(match[2]),
                     balancePercent: Number(match[3].replace('%', '')),
-                    method: match[4]
+                    buyMargin: match[4],
+                    method: match[5]
                 });
             } else {
                 this.send('Bot is already started!');
@@ -65,8 +67,8 @@ class Telegram {
 
         // Telegram bot: /help
         this.tb.onText(/\/help/, async () => {
-            this.send('Start example: /start 1m 10 50% up');
-            this.send('1m is candle period, 10 is number of candles, 50% is the balance percentage, up/down is the method');
+            this.send('Start example: /start 1m 10 50% 0.001 up');
+            this.send('1m is candle period, 10 is number of candles, 50% is the balance percentage, 0.001 is the buy margin, up/down is the method');
         });
 
         // All messages

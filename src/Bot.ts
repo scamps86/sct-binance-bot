@@ -16,6 +16,7 @@ interface IBotConfig {
     candleAmount: number;
     balancePercent: number;
     method: EBotMethod;
+    buyMargin: number;
 }
 
 interface IOrder {
@@ -63,7 +64,7 @@ class Bot {
         await Logger.log('- - - - - STARTING BOT - - - - -');
         await this.check(config);
 
-        if (this.quantity <= 0 || this.buyPrice < 0 || this.sellPrice < 0 || this.buyPrice > this.sellPrice) {
+        if (this.config.buyMargin <= 0 && this.quantity <= 0 || this.buyPrice < 0 || this.sellPrice < 0 || this.buyPrice > this.sellPrice) {
             await Logger.log('Bot could not be executed with this configuration. Please review your BTC free balance too.');
             return;
         }
@@ -153,8 +154,8 @@ class Bot {
 
         this.quantity = this.roundStep((BTCBalance * this.config.balancePercent / 100) / this.currencyPrice);
         this.buyPrice = this.config.method === EBotMethod.UP
-            ? this.parseTo7Digits(this.currencyPrice)
-            : this.parseTo7Digits(summary.low);
+            ? this.parseTo7Digits(this.currencyPrice - this.config.buyMargin)
+            : this.parseTo7Digits(summary.low - this.config.buyMargin);
         this.sellPrice = this.config.method === EBotMethod.UP
             ? this.parseTo7Digits(summary.high)
             : this.parseTo7Digits(this.currencyPrice);

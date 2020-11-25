@@ -19,7 +19,7 @@ You can configure the number of the last candles and their period.
 * To read the logs, type: `docker-compose logs -f`
 
 #### Telegram bot options
-* `/start 5m 10 20% up` candle period | number of candles | balance percent | method
+* `/start 5m 10 20% 0.001 up` candle period | number of candles | balance percent | buy margin | method
 * `/stop`
 * `/check 5m 10 20% up`
 * `/help`
