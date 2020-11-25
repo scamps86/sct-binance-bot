@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  node-express:
+    image: sct-binance-bot_node-express:10.16.0
+    container_name: sct-binance-bot
+    build: ./
+    restart: always
+    volumes:
+      - ./:/usr/src/sct-binance-bot
+      - /usr/src/sct-binance-bot/node_modules
+    command: npm start
