@@ -26,8 +26,8 @@ class Telegram {
         this.tb.onText(/\/start ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (up|down)/, async (message, match) => {
             if (!bot.isStarted()) {
                 await bot.start({
-                    pair: 'WAVESBTC',
-                    currency: 'WAVES',
+                    pair: CONFIG.CURRENCY.PAIR,
+                    currency: CONFIG.CURRENCY.NAME,
                     candlePeriod: match[1],
                     candleAmount: Number(match[2]),
                     balancePercent: Number(match[3].replace('%', '')),

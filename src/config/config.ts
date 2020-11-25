@@ -5,6 +5,10 @@ const CONFIG = {
     },
     TELEGRAM: {
         BOT_TOKEN: 'your Telegram bot id',
+    },
+    CURRENCY: {
+        PAIR: 'WAVESBTC',
+        NAME: 'WAVES',
     }
 }
 
