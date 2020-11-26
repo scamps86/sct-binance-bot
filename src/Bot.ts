@@ -74,14 +74,16 @@ class Bot {
             this.wsClean = await this.authBinance.ws.user(async (message) => {
                 if (message?.eventType === 'executionReport' && message?.orderStatus === 'FILLED' && message?.executionType === 'TRADE') {
                     if (message.orderId === this.buyOrder?.orderId) {
-                        await Logger.log('BUY ORDER done:', this.buyOrder.price);
+                        await Logger.log('BUY ORDER done!');
+                        this.buyOrder = null;
                         const CBalance = await this.getUserBalance(this.config.currency);
-                        this.quantity = this.roundStep(CBalance);
+                        this.quantity = CBalance >= this.quantity ? this.quantity : this.roundStep(CBalance);
                         this.sellOrder = await this.order('SELL', this.sellPrice);
                     }
                     if (message.orderId === this.sellOrder?.orderId) {
-                        await Logger.log('SELL ORDER done:', this.sellOrder.price);
+                        await Logger.log('SELL ORDER done!');
                         await Logger.log('- - - - - DEAL ACCOMPLISHED! - - - - -');
+                        this.sellOrder = null;
                         this.start(config);
                     }
                 }
@@ -107,7 +109,7 @@ class Bot {
     }
 
     public isStarted(): boolean {
-        return !!this.buyOrder || !!this.sellOrder;
+        return !!this.wsClean;
     }
 
     private async order(side: TOrderSide, price: number): Promise<IOrder> {
@@ -119,10 +121,12 @@ class Bot {
                 quantity: this.quantity,
                 price
             });
-            await Logger.log(side + ' ORDER created:', order.price);
+            await Logger.log(side + ' ORDER created.', 'price: ' + order.price + ' '
+                + this.config.currency + ' quantity: ' + this.quantity + ' '
+                + this.config.currency);
             return order;
         } catch (e) {
-            await Logger.log('Order error', e);
+            await Logger.log(side + 'ORDER error', e);
         }
     }
 
