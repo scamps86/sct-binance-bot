@@ -22,41 +22,27 @@ class Telegram {
     public listen(): void {
         console.log('TELEGRAM listening...');
 
-        // Telegram bot: /start 1m 10 50% up
-        this.tb.onText(/\/start ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (.+) (up|down)/, async (message, match) => {
-            if (!bot.isStarted()) {
-                await bot.start({
-                    pair: CONFIG.CURRENCY.PAIR,
-                    currency: CONFIG.CURRENCY.NAME,
-                    candlePeriod: match[1],
-                    candleAmount: Number(match[2]),
-                    balancePercent: Number(match[3].replace('%', '')),
-                    buyMargin: Number(match[4]),
-                    method: match[5]
-                });
+        this.tb.onText(/\/(start|check) ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (.+) (up|down)/, async (message, match) => {
+            const config = {
+                pair: CONFIG.CURRENCY.PAIR,
+                currency: CONFIG.CURRENCY.NAME,
+                candlePeriod: match[1],
+                candleAmount: Number(match[2]),
+                balancePercent: Number(match[3].replace('%', '')),
+                buyMargin: Number(match[4]),
+                method: match[5]
+            };
+            if (match[0] === 'start') {
+                if (!bot.isStarted()) {
+                    await bot.start(config);
+                } else {
+                    this.send('Bot is already started!');
+                }
             } else {
-                this.send('Bot is already started!');
+                await bot.check(config);
             }
         });
 
-        // Telegram bot: /check 1m 10 50% up
-        this.tb.onText(/\/check ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (.+) (up|down)/, async (message, match) => {
-            if (!bot.isStarted()) {
-                await bot.check({
-                    pair: CONFIG.CURRENCY.PAIR,
-                    currency: CONFIG.CURRENCY.NAME,
-                    candlePeriod: match[1],
-                    candleAmount: Number(match[2]),
-                    balancePercent: Number(match[3].replace('%', '')),
-                    buyMargin: Number(match[4]),
-                    method: match[5]
-                });
-            } else {
-                this.send('Bot is already started!');
-            }
-        });
-
-        // Telegram bot: /stop
         this.tb.onText(/\/stop/, async () => {
             if (bot.isStarted()) {
                 await bot.stop();
@@ -65,7 +51,6 @@ class Telegram {
             }
         });
 
-        // Telegram bot: /help
         this.tb.onText(/\/help/, async () => {
             this.send('Start example: /start 1m 10 50% 0.001 up');
             this.send('1m is candle period, 10 is number of candles, 50% is the balance percentage, 0.001 is the buy margin, up/down is the method');

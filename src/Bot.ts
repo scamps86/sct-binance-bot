@@ -31,6 +31,8 @@ class Bot {
     private buyPrice: number;
     private sellPrice: number;
 
+    private initialBTCBalance: number;
+
     private buyOrder: IOrder;
     private sellOrder: IOrder;
 
@@ -48,7 +50,7 @@ class Bot {
         this.authBinance = Binance({
             apiKey: CONFIG.BINANCE.API_KEY,
             apiSecret: CONFIG.BINANCE.API_SECRET,
-            getTime: () => Date.now(), // time generator function, optional, defaults to () => Date.now()
+            getTime: () => Date.now(),
         });
     }
 
@@ -56,7 +58,7 @@ class Bot {
     public async check(config: IBotConfig): Promise<void> {
         this.config = config;
         await this.refreshCurrencyInfo();
-        await this.doCalculations();
+        await this.configure();
     }
 
 
@@ -64,7 +66,7 @@ class Bot {
         await Logger.log('- - - - - STARTING BOT - - - - -');
         await this.check(config);
 
-        if (this.config.buyMargin <= 0 && this.quantity <= 0 || this.buyPrice < 0 || this.sellPrice < 0 || this.buyPrice > this.sellPrice) {
+        if (this.quantity <= 0 || this.buyPrice < 0 || this.sellPrice < 0 || this.buyPrice > this.sellPrice) {
             await Logger.log('Bot could not be executed with this configuration. Please review your BTC free balance too.');
             return;
         }
@@ -81,10 +83,12 @@ class Bot {
                         this.sellOrder = await this.order('SELL', this.sellPrice);
                     }
                     if (message.orderId === this.sellOrder?.orderId) {
+                        const BTCBalance = await this.getUserBalance('BTC');
                         await Logger.log('SELL ORDER done!');
                         await Logger.log('- - - - - DEAL ACCOMPLISHED! - - - - -');
+                        await Logger.log('You have earned ' + (BTCBalance - this.initialBTCBalance) + ' BTC');
                         this.sellOrder = null;
-                        this.start(config);
+                        await this.start(config);
                     }
                 }
             });
@@ -93,7 +97,6 @@ class Bot {
     }
 
     public async stop(): Promise<void> {
-        await Logger.log('- - - - - - BOT STOPPED - - - - - -');
         if (this.wsClean) {
             this.wsClean();
             this.wsClean = null;
@@ -106,6 +109,7 @@ class Bot {
             await this.cancelOrder(this.sellOrder.orderId);
             this.sellOrder = null;
         }
+        await Logger.log('- - - - - - BOT STOPPED - - - - - -');
     }
 
     public isStarted(): boolean {
@@ -126,7 +130,7 @@ class Bot {
                 + this.config.currency);
             return order;
         } catch (e) {
-            await Logger.log(side + 'ORDER error', e);
+            await Logger.log(side + ' ORDER error', e);
         }
     }
 
@@ -150,13 +154,13 @@ class Bot {
         this.currencyMaxQty = Number(lotSize.maxQty);
     }
 
-    private async doCalculations(): Promise<void> {
+    private async configure(): Promise<void> {
         const prices = await this.publicBinance.prices({symbol: this.config.pair});
         this.currencyPrice = Number(Object.keys(prices).map(k => prices[k])[0]);
-        const BTCBalance = await this.getUserBalance('BTC');
+        this.initialBTCBalance = await this.getUserBalance('BTC');
         const summary = await this.getCandleSummary();
 
-        this.quantity = this.roundStep((BTCBalance * this.config.balancePercent / 100) / this.currencyPrice);
+        this.quantity = this.roundStep((this.initialBTCBalance * this.config.balancePercent / 100) / this.currencyPrice);
         this.buyPrice = this.config.method === EBotMethod.UP
             ? this.parseTo7Digits(this.currencyPrice - this.config.buyMargin)
             : this.parseTo7Digits(summary.low - this.config.buyMargin);
