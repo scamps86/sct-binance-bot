@@ -25,6 +25,7 @@ interface IOrder {
 }
 
 class Bot {
+    private orderDelay = 5000;
     private config: IBotConfig;
 
     private quantity: number;
@@ -78,17 +79,21 @@ class Bot {
                     if (message.orderId === this.buyOrder?.orderId) {
                         await Logger.log('BUY ORDER done!');
                         this.buyOrder = null;
-                        const CBalance = await this.getUserBalance(this.config.currency);
-                        this.quantity = CBalance >= this.quantity ? this.quantity : this.roundStep(CBalance);
-                        this.sellOrder = await this.order('SELL', this.sellPrice);
+                        setTimeout(async () => {
+                            const CBalance = await this.getUserBalance(this.config.currency);
+                            this.quantity = CBalance >= this.quantity ? this.quantity : this.roundStep(CBalance);
+                            this.sellOrder = await this.order('SELL', this.sellPrice);
+                        }, this.orderDelay);
                     }
                     if (message.orderId === this.sellOrder?.orderId) {
-                        const BTCBalance = await this.getUserBalance('BTC');
                         await Logger.log('SELL ORDER done!');
-                        await Logger.log('- - - - - DEAL ACCOMPLISHED! - - - - -');
-                        await Logger.log('You have earned ' + (BTCBalance - this.initialBTCBalance) + ' BTC');
                         this.sellOrder = null;
-                        await this.start(config);
+                        setTimeout(async () => {
+                            const BTCBalance = await this.getUserBalance('BTC');
+                            await Logger.log('- - - - - DEAL ACCOMPLISHED! - - - - -');
+                            await Logger.log('You have earned ' + (BTCBalance - this.initialBTCBalance) + ' BTC');
+                            await this.start(config);
+                        }, this.orderDelay);
                     }
                 }
             });
