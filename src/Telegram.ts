@@ -26,13 +26,13 @@ class Telegram {
             const config = {
                 pair: CONFIG.CURRENCY.PAIR,
                 currency: CONFIG.CURRENCY.NAME,
-                candlePeriod: match[1],
-                candleAmount: Number(match[2]),
-                balancePercent: Number(match[3].replace('%', '')),
-                buyMargin: Number(match[4]),
-                method: match[5]
+                candlePeriod: match[2],
+                candleAmount: Number(match[3]),
+                balancePercent: Number(match[4].replace('%', '')),
+                buyMargin: Number(match[5]),
+                method: match[6]
             };
-            if (match[0] === 'start') {
+            if (match[1] === 'start') {
                 if (!bot.isStarted()) {
                     await bot.start(config);
                 } else {
