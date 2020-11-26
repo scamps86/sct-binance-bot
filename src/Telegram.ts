@@ -23,23 +23,23 @@ class Telegram {
         console.log('TELEGRAM listening...');
 
         this.tb.onText(/\/(start|check) ([1-9][m|h|d|M]) ([1-9]\d?\d?) ([1-9]\d?\d?%) (.+) (up|down)/, async (message, match) => {
-            const config = {
-                pair: CONFIG.CURRENCY.PAIR,
-                currency: CONFIG.CURRENCY.NAME,
-                candlePeriod: match[2],
-                candleAmount: Number(match[3]),
-                balancePercent: Number(match[4].replace('%', '')),
-                buyMargin: Number(match[5]),
-                method: match[6]
-            };
-            if (match[1] === 'start') {
-                if (!bot.isStarted()) {
+            if (!bot.isStarted()) {
+                const config = {
+                    pair: CONFIG.CURRENCY.PAIR,
+                    currency: CONFIG.CURRENCY.NAME,
+                    candlePeriod: match[2],
+                    candleAmount: Number(match[3]),
+                    balancePercent: Number(match[4].replace('%', '')),
+                    buyMargin: Number(match[5]),
+                    method: match[6]
+                };
+                if (match[1] === 'start') {
                     await bot.start(config);
                 } else {
-                    this.send('Bot is already started!');
+                    await bot.check(config);
                 }
             } else {
-                await bot.check(config);
+                this.send('Bot is already started!');
             }
         });
 
