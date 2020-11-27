@@ -11,9 +11,9 @@ class Telegram {
         this.tb = new TelegramBot(CONFIG.TELEGRAM.BOT_TOKEN, {polling: true});
     }
 
-    public send(message: string): void {
+    public async send(message: string): Promise<void> {
         if (this.chatId) {
-            this.tb.sendMessage(this.chatId, message);
+            await this.tb.sendMessage(this.chatId, message);
         } else {
             console.error('Could not send the message: no chat id!');
         }

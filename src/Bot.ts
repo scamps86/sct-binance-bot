@@ -91,7 +91,7 @@ class Bot {
                         setTimeout(async () => {
                             const BTCBalance = await this.getUserBalance('BTC');
                             await Logger.log('- - - - - DEAL ACCOMPLISHED! - - - - -');
-                            await Logger.log('You have earned ' + (BTCBalance - this.initialBTCBalance) + ' BTC');
+                            await Logger.log('You have earned ' + (BTCBalance - this.initialBTCBalance) + 'BTC');
                             await this.start(config);
                         }, this.orderDelay);
                     }
@@ -130,9 +130,8 @@ class Bot {
                 quantity: this.quantity,
                 price
             });
-            await Logger.log(side + ' ORDER created.', 'price: ' + order.price + ' '
-                + this.config.currency + ' quantity: ' + this.quantity + ' '
-                + this.config.currency);
+            await Logger.log(side + ' ORDER created.', 'price: ' + order.price + 'BTC'
+                + ' quantity: ' + this.quantity + this.config.currency);
             return order;
         } catch (e) {
             await Logger.log(side + ' ORDER error', e);
@@ -173,11 +172,8 @@ class Bot {
             ? this.parseTo7Digits(summary.high)
             : this.parseTo7Digits(this.currencyPrice);
 
-        await Logger.log('BOT CONFIGURATION', {
-            quantity: this.quantity,
-            buyPrice: this.buyPrice,
-            sellPrice: this.sellPrice,
-        });
+        await Logger.log('BOT CONFIGURATION: quantity: ' + this.quantity + this.config.currency
+            + ' buy price: ' + this.buyPrice + 'BTC sell price: ' + this.sellPrice + 'BTC');
     }
 
     private async getUserBalance(currency: string): Promise<number> {
